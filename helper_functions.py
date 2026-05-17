@@ -35,7 +35,6 @@ def db_register(username, password, role):
         return False, f"Database error: {e}"
 
 def db_get_stats():
-    """Return salary stats and department-wise employee counts."""
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""

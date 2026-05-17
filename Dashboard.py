@@ -11,10 +11,10 @@ class DashboardWindow:
         self.role  = user["role"].lower()
         self.is_admin = self.role == "admin"
         self.emp_list  = []
-        self._all_rows = []     # master cache for live filtering
-        self._sort_col = None   # "Name" | "Department" | "Salary"
+        self._all_rows = []
+        self._sort_col = None
         self._sort_asc = True
-        self._live_after = None # pending after() id for debounce
+        self._live_after = None
 
         root.title("Employee Management System")
         root.configure(bg=BG)
@@ -23,10 +23,7 @@ class DashboardWindow:
         self._build()
         root.mainloop()
 
-    # ── Layout ────────────────────────────────────────────────────────────────
-
     def _build(self):
-        # ── Top bar ──────────────────────────────────────────────────────────
         topbar = tk.Frame(self.root, bg=PRIMARY, height=48)
         topbar.pack(fill="x", side="top")
         topbar.pack_propagate(False)
@@ -35,7 +32,6 @@ class DashboardWindow:
                  font=F(13, bold=True), bg=PRIMARY, fg="#fff").pack(
                      side="left", padx=20, pady=12)
 
-        # Right side of topbar: role badge + logout
         right = tk.Frame(topbar, bg=PRIMARY)
         right.pack(side="right", padx=16)
 
@@ -53,28 +49,23 @@ class DashboardWindow:
                            cursor="hand2", font=F(9, bold=True), bd=0)
         lo_btn.pack(side="left", ipadx=10, ipady=4)
 
-        # ── Main area ─────────────────────────────────────────────────────────
         main = tk.Frame(self.root, bg=BG)
         main.pack(fill="both", expand=True, padx=20, pady=16)
 
-        # Left panel – form
         left = tk.Frame(main, bg=CARD, highlightthickness=1,
                         highlightbackground=BORDER, width=340)
         left.pack(side="left", fill="y", padx=(0, 16))
         left.pack_propagate(False)
         self._build_form(left)
 
-        # Right column – wraps table + optional stats panel
         right_col = tk.Frame(main, bg=BG)
         right_col.pack(side="left", fill="both", expand=True)
 
-        # Right panel – table
         right_panel = tk.Frame(right_col, bg=CARD, highlightthickness=1,
                                highlightbackground=BORDER)
         right_panel.pack(fill="both", expand=True)
         self._build_table(right_panel)
 
-        # ── Stats panel (admin only) ──────────────────────────────────────────
         if self.is_admin:
             self._build_stats(right_col)
 
@@ -85,12 +76,10 @@ class DashboardWindow:
         tk.Label(inner, text="Employee Details", font=F(12, bold=True),
                  bg=CARD, fg=TEXT).pack(anchor="w", pady=(0, 14))
 
-        # Form grid
         form = tk.Frame(inner, bg=CARD)
         form.pack(fill="x")
         form.columnconfigure(1, weight=1)
 
-        # ── Search fields (all roles can use every filter) ────────────────────
         search_fields = [
             ("Employee ID", "v_id"),
             ("Name",        "v_name"),
@@ -109,13 +98,11 @@ class DashboardWindow:
             e.grid(row=i, column=1, sticky="ew", ipady=5, pady=5)
             self.entries[key] = e
 
-        # ── Live filtering on Name and Department ─────────────────────────────
         for live_key in ("v_name", "v_dept"):
             self.vars[live_key].trace_add(
                 "write", lambda *_, k=live_key: self._on_live_filter()
             )
 
-        # Salary range row — two inputs side by side
         row_sal = len(search_fields)
         self.vars["v_sal_min"] = tk.StringVar()
         self.vars["v_sal_max"] = tk.StringVar()
@@ -139,11 +126,9 @@ class DashboardWindow:
         self.entries["v_sal_min"] = e_min
         self.entries["v_sal_max"] = e_max
 
-        # Thin divider before CRUD-only fields
         tk.Frame(form, bg=BORDER, height=1).grid(
             row=row_sal + 1, column=0, columnspan=2, sticky="ew", pady=8)
 
-        # ── CRUD-only fields (used by admin Insert/Update; read-only display) ─
         crud_fields = [
             ("Salary",  "v_salary"),
             ("Contact", "v_contact"),
@@ -161,11 +146,8 @@ class DashboardWindow:
             if not self.is_admin:
                 e.configure(state="disabled", bg="#f9f9f9", fg=SUBTLE)
 
-        # Divider
         tk.Frame(inner, bg=BORDER, height=1).pack(fill="x", pady=14)
 
-        # ── Buttons ───────────────────────────────────────────────────────────
-        # Search + Clear — always active for all roles
         search_row = tk.Frame(inner, bg=CARD)
         search_row.pack(fill="x", pady=(0, 6))
 
@@ -177,7 +159,6 @@ class DashboardWindow:
         style_btn(clr, primary=False)
         clr.pack(side="left", ipadx=6, ipady=6, expand=True, fill="x")
 
-        # Show All button — always active for all roles
         all_row = tk.Frame(inner, bg=CARD)
         all_row.pack(fill="x", pady=(0, 6))
 
@@ -185,7 +166,6 @@ class DashboardWindow:
         style_btn(all_btn)
         all_btn.pack(side="left", ipadx=10, ipady=6, expand=True, fill="x")
 
-        # CRUD buttons — shown for all roles; greyed/disabled for non-admin
         crud_row1 = tk.Frame(inner, bg=CARD)
         crud_row1.pack(fill="x", pady=(0, 6))
 
@@ -216,7 +196,6 @@ class DashboardWindow:
         dlt.pack(side="left", ipadx=10, ipady=6, expand=True, fill="x", padx=(0, 6))
         rst.pack(side="left", ipadx=6, ipady=6, expand=True, fill="x")
 
-        # Export button — available to ALL roles
         exp_row = tk.Frame(inner, bg=CARD)
         exp_row.pack(fill="x", pady=(0, 6))
 
@@ -228,26 +207,20 @@ class DashboardWindow:
                           font=F(10, bold=True), state="disabled", cursor="arrow")
         exp.pack(side="left", ipadx=10, ipady=6, expand=True, fill="x")
 
-        # Status
         tk.Frame(inner, bg=BORDER, height=1).pack(fill="x", pady=14)
         self.status = tk.Label(inner, text="", font=F(9),
                                bg=CARD, fg=OK, wraplength=280, justify="left")
         self.status.pack(anchor="w")
 
-    # ── Statistics Panel (admin-only) ────────────────────────────────────────
-
     def _build_stats(self, parent):
-        """Build the collapsible Statistics panel below the Treeview."""
         STAT_BG    = "#f8fafc"
         STAT_CARD  = "#ffffff"
 
-        # ── Outer container ──────────────────────────────────────────────────
         self.stats_frame = tk.Frame(parent, bg=STAT_BG,
                                     highlightthickness=1,
                                     highlightbackground=BORDER)
         self.stats_frame.pack(fill="x", pady=(10, 0))
 
-        # ── Header bar ───────────────────────────────────────────────────────
         hdr = tk.Frame(self.stats_frame, bg=BORDER)
         hdr.pack(fill="x")
 
@@ -272,11 +245,9 @@ class DashboardWindow:
             cursor="hand2", font=F(9))
         refresh_btn.pack(side="right", padx=(0, 4), ipadx=6, ipady=2)
 
-        # ── Collapsible body ─────────────────────────────────────────────────
         self._stats_body = tk.Frame(self.stats_frame, bg=STAT_BG)
         self._stats_body.pack(fill="x", padx=12, pady=10)
 
-        # ── Row 1 – Salary KPI cards ─────────────────────────────────────────
         kpi_row = tk.Frame(self._stats_body, bg=STAT_BG)
         kpi_row.pack(fill="x")
 
@@ -303,7 +274,6 @@ class DashboardWindow:
             val_lbl.pack(fill="x", pady=(0, 8))
             setattr(self, attr, val_lbl)
 
-        # ── Row 2 – Department-wise count ─────────────────────────────────────
         tk.Frame(self._stats_body, bg=BORDER, height=1).pack(fill="x", pady=(10, 8))
 
         dept_hdr = tk.Frame(self._stats_body, bg=STAT_BG)
@@ -311,7 +281,6 @@ class DashboardWindow:
         tk.Label(dept_hdr, text="Department-wise Employee Count",
                  font=F(10, bold=True), bg=STAT_BG, fg=TEXT).pack(side="left")
 
-        # Treeview for dept counts
         dept_cols = ("Department", "Employees")
         dept_style = ttk.Style()
         dept_style.configure("Dept.Treeview",
@@ -343,11 +312,9 @@ class DashboardWindow:
         dept_vsb.grid(row=0, column=1, sticky="ns")
         dept_frame.columnconfigure(0, weight=1)
 
-        # Alternate row colors
         self.dept_tree.tag_configure("odd",  background="#f8fafc")
         self.dept_tree.tag_configure("even", background=STAT_CARD)
 
-        # Load data immediately
         self._refresh_stats()
 
     def _toggle_stats(self):
@@ -361,16 +328,7 @@ class DashboardWindow:
             self._stats_collapsed = True
 
     def _refresh_stats(self, rows=None):
-        """Update stat widgets.
-
-        If *rows* is provided (a list of EMPLOYEES tuples already fetched),
-        stats are computed from that subset in-memory — no extra DB call.
-        Without rows the full-table DB query is used (initial load).
-
-        Row tuple layout: (EMPID, NAME, GENDER, DEPARTMENT, SALARY, CONTACT)
-        """
         if rows is not None:
-            # ── Compute from the supplied subset ─────────────────────────────
             salaries = []
             for r in rows:
                 try:
@@ -399,7 +357,6 @@ class DashboardWindow:
                 "dept_counts": dept_counts,
             }
         else:
-            # ── Fall back to full DB query ────────────────────────────────────
             try:
                 stats = db_get_stats()
             except Exception as e:
@@ -434,7 +391,6 @@ class DashboardWindow:
         tk.Label(inner, text="Employee Records", font=F(12, bold=True),
                  bg=CARD, fg=TEXT).pack(anchor="w", pady=(0, 10))
 
-        # Treeview
         cols = ("ID", "Name", "Gender", "Department", "Salary", "Contact")
         style = ttk.Style()
         style.theme_use("clam")
@@ -456,7 +412,6 @@ class DashboardWindow:
                                  show="headings", style="Custom.Treeview")
         widths = {"ID": 70, "Name": 140, "Gender": 70,
                   "Department": 130, "Salary": 90, "Contact": 110}
-        # Map sortable column names to their index in the row tuple
         self._sort_col_index = {"Name": 1, "Department": 3, "Salary": 4}
 
         for col in cols:
@@ -481,14 +436,11 @@ class DashboardWindow:
 
         self.tree.bind("<<TreeviewSelect>>", self._on_select)
 
-        # Bottom row: record count
         bot = tk.Frame(inner, bg=CARD)
         bot.pack(fill="x", pady=(8, 0))
         self.count_label = tk.Label(bot, text="No records loaded.",
                                     font=F(9), bg=CARD, fg=SUBTLE)
         self.count_label.pack(side="left")
-
-    # ── Treeview helpers ──────────────────────────────────────────────────────
 
     def _on_select(self, event):
         selected = self.tree.selection()
@@ -496,11 +448,9 @@ class DashboardWindow:
             return
         idx = int(selected[0])
         row = self.emp_list[idx]
-        # DB column order: EMPID, NAME, GENDER, DEPARTMENT, SALARY, CONTACT
         mapping = [("v_id",0),("v_name",1),("v_gender",2),("v_dept",3),("v_salary",4),("v_contact",5)]
         for key, col in mapping:
             self.vars[key].set(row[col] if row[col] is not None else "")
-        # Clear salary range fields on row select (they are search-only)
         self.vars["v_sal_min"].set("")
         self.vars["v_sal_max"].set("")
 
@@ -520,12 +470,10 @@ class DashboardWindow:
         self.count_label.config(text=f"{n} record{'s' if n != 1 else ''} found.")
 
     def _reset_heading_arrows(self):
-        """Remove ▲/▼ from all sortable column headings."""
         for col in self._sort_col_index:
             self.tree.heading(col, text=col)
 
     def _sort_by(self, col):
-        """Toggle sort direction if same column, else sort ascending on new column."""
         if not self.emp_list:
             return
         if self._sort_col == col:
@@ -536,7 +484,6 @@ class DashboardWindow:
         self._apply_sort()
 
     def _apply_sort(self):
-        """Sort self.emp_list by the active column and repopulate the treeview."""
         if self._sort_col is None:
             return
         idx = self._sort_col_index[self._sort_col]
@@ -544,7 +491,6 @@ class DashboardWindow:
         def sort_key(row):
             val = row[idx]
             if val is None:
-                # None sorts last regardless of direction
                 return (1, 0) if self._sort_col == "Salary" else (1, "")
             if self._sort_col == "Salary":
                 try:
@@ -555,14 +501,12 @@ class DashboardWindow:
 
         self.emp_list.sort(key=sort_key, reverse=not self._sort_asc)
 
-        # Repopulate treeview preserving selection
         for item in self.tree.get_children():
             self.tree.delete(item)
         for i, r in enumerate(self.emp_list):
             self.tree.insert("", "end", iid=str(i),
                              values=(r[0], r[1], r[2], r[3], r[4], r[5]))
 
-        # Update heading arrows: active col gets arrow, others plain
         arrow = " ▲" if self._sort_asc else " ▼"
         for col in self._sort_col_index:
             label = col + (arrow if col == self._sort_col else "")
@@ -572,16 +516,14 @@ class DashboardWindow:
         self.count_label.config(text=f"{n} record{'s' if n != 1 else ''} found.")
 
     def _on_live_filter(self):
-        """Debounce: wait 150 ms after the last keystroke before filtering."""
         if self._live_after is not None:
             self.root.after_cancel(self._live_after)
         self._live_after = self.root.after(150, self._apply_live_filter)
 
     def _apply_live_filter(self):
-        """Filter _all_rows client-side by current Name and Department values."""
         self._live_after = None
         if not self._all_rows:
-            return  # nothing loaded yet — nothing to filter
+            return 
 
         name_q = self.vars["v_name"].get().strip().lower()
         dept_q = self.vars["v_dept"].get().strip().lower()
@@ -595,7 +537,6 @@ class DashboardWindow:
                 and (not dept_q or (r[3] and dept_q in str(r[3]).lower()))
             ]
 
-        # Repopulate the treeview without touching _all_rows
         for item in self.tree.get_children():
             self.tree.delete(item)
         self.emp_list = list(filtered)
@@ -614,10 +555,7 @@ class DashboardWindow:
     def _set_status(self, msg, color=OK):
         self.status.config(text=msg, fg=color)
 
-    # ── Form helpers ──────────────────────────────────────────────────────────
-
     def _show_all(self):
-        """Fetch and display every employee record, clearing all filters first."""
         for v in self.vars.values():
             v.set("")
         try:
@@ -636,7 +574,6 @@ class DashboardWindow:
             self._set_status(f"Error: {e}", ERR)
 
     def _reload_table(self):
-        """Silently refresh the treeview with all current DB records."""
         try:
             with get_connection() as conn:
                 with conn.cursor() as cur:
@@ -661,8 +598,6 @@ class DashboardWindow:
         self._all_rows = []
         self.count_label.config(text="No records loaded.")
 
-    # ── CRUD Operations ───────────────────────────────────────────────────────
-
     def _search(self):
         empid   = self.vars["v_id"].get().strip()
         name    = self.vars["v_name"].get().strip()
@@ -671,7 +606,6 @@ class DashboardWindow:
         sal_min = self.vars["v_sal_min"].get().strip()
         sal_max = self.vars["v_sal_max"].get().strip()
 
-        # ── Validate salary range inputs ──────────────────────────────────────
         sal_min_val = sal_max_val = None
         if sal_min:
             try:
@@ -690,8 +624,6 @@ class DashboardWindow:
             if sal_min_val < 0 or sal_max_val < 0:
                 self._set_status("Salaries cannot be negative.", ERR); return
 
-        # ── Build parameterised query ─────────────────────────────────────────
-        # Rule: if Employee ID is provided it overrides all other filters.
         clauses = []
         params  = {}
 
@@ -772,7 +704,6 @@ class DashboardWindow:
         try:
             with get_connection() as conn:
                 with conn.cursor() as cur:
-                    # ── Fetch existing record to detect changes ───────────────
                     cur.execute(
                         "SELECT NAME, GENDER, DEPARTMENT, SALARY, CONTACT "
                         "FROM EMPLOYEES WHERE UPPER(EMPID) = UPPER(:1)",
@@ -783,7 +714,6 @@ class DashboardWindow:
                         self._set_status("No employee found with that ID.", ERR)
                         return
 
-                    # Normalise DB values to strings for comparison
                     existing_vals = [
                         str(v).strip() if v is not None else "" for v in existing
                     ]
@@ -825,10 +755,7 @@ class DashboardWindow:
         except Exception as e:
             self._set_status(f"Error: {e}", ERR)
 
-    # ── Export ────────────────────────────────────────────────────────────────
-
     def _export_dialog(self):
-        """Show a modal dialog to choose CSV or TXT export format."""
         if not self.emp_list:
             messagebox.showwarning("Nothing to Export",
                                    "No records are loaded in the table.\n"
@@ -841,7 +768,6 @@ class DashboardWindow:
         dlg.configure(bg=CARD)
         dlg.resizable(False, False)
         dlg.grab_set()
-        # centre over parent
         self.root.update_idletasks()
         px = self.root.winfo_x() + self.root.winfo_width()  // 2
         py = self.root.winfo_y() + self.root.winfo_height() // 2
@@ -878,7 +804,6 @@ class DashboardWindow:
                   cursor="hand2", font=F(9)).pack(pady=(10, 0))
 
     def _export_data(self, fmt):
-        """Write self.emp_list to a CSV or TXT file chosen by the user."""
         headers = ["EmpID", "Name", "Gender", "Department", "Salary", "Contact"]
 
         if fmt == "csv":
@@ -937,7 +862,6 @@ class DashboardWindow:
             except Exception as e:
                 messagebox.showerror("Export Failed", f"Could not write file:\n{e}",
                                      parent=self.root)
-
 
     def _logout(self):
         from Login import LoginWindow
