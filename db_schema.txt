@@ -1,0 +1,25 @@
+"""
+Oracle Tables:
+    -- Users table
+    CREATE TABLE USERS (
+        ID         NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        USERNAME   VARCHAR2(100) UNIQUE NOT NULL,
+        PASSWORD   VARCHAR2(255)        NOT NULL,
+        ROLE       VARCHAR2(10)  DEFAULT 'user' NOT NULL,
+        CREATED_AT DATE          DEFAULT SYSDATE,
+        CONSTRAINT chk_role CHECK (ROLE IN ('admin', 'user'))
+    );
+
+    -- Employees table
+    CREATE TABLE EMPLOYEES (
+        EMPID      VARCHAR2(20) PRIMARY KEY,
+        NAME       VARCHAR2(100),
+        GENDER     VARCHAR2(10),
+        DEPARTMENT VARCHAR2(100),
+        SALARY     NUMBER,
+        CONTACT    VARCHAR2(20)
+
+        CONSTRAINT unique_contact UNIQUE(CONTACT),
+        CONSTRAINT chk_gender CHECK(GENDER IN ('M', 'F', 'O'))
+    );
+"""
