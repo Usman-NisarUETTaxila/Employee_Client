@@ -19,7 +19,7 @@ class DashboardWindow:
         root.title("Employee Management System")
         root.configure(bg=BG)
         root.resizable(True, True)
-        center(root, 980, 820)
+        center(root, 1280, 720)
         self._build()
         root.mainloop()
 
@@ -660,8 +660,8 @@ class DashboardWindow:
                 active = []
                 if empid:            active.append(f"ID='{empid}'")
                 else:
-                    if name:         active.append(f"Name≈'{name}'")
-                    if dept:         active.append(f"Dept≈'{dept}'")
+                    if name:         active.append(f"Name='{name}'")
+                    if dept:         active.append(f"Dept='{dept}'")
                     if gender:       active.append(f"Gender='{gender}'")
                     if sal_min_val is not None or sal_max_val is not None:
                         lo = f"{sal_min_val:,.0f}" if sal_min_val is not None else "0"

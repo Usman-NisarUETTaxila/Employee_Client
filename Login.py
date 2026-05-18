@@ -6,7 +6,7 @@ from Dashboard import DashboardWindow
 class LoginWindow:
     def __init__(self, root):
         self.root = root
-        root.title("Sign In")
+        root.title("Log In")
         root.configure(bg=BG)
         root.resizable(False, False)
         center(root, 420, 400)
@@ -23,7 +23,7 @@ class LoginWindow:
         p = tk.Frame(card, bg=CARD)
         p.pack(fill="both", expand=True, padx=36, pady=36)
 
-        tk.Label(p, text="Sign In", font=F(20, bold=True),
+        tk.Label(p, text="Log In", font=F(20, bold=True),
                  bg=CARD, fg=TEXT).pack(anchor="w")
         tk.Label(p, text="Employee Management System",
                  font=F(10), bg=CARD, fg=SUBTLE).pack(anchor="w", pady=(2, 22))
@@ -42,18 +42,10 @@ class LoginWindow:
                             wraplength=280, justify="left")
         self.msg.pack(anchor="w", pady=(0, 8))
 
-        btn = tk.Button(p, text="Sign In", command=self._login)
+        btn = tk.Button(p, text="Log In", command=self._login)
         style_btn(btn)
         btn.pack(fill="x", ipady=9)
 
-        row = tk.Frame(p, bg=CARD)
-        row.pack(pady=(14, 0))
-        tk.Label(row, text="No account?", font=F(9),
-                 bg=CARD, fg=SUBTLE).pack(side="left")
-        reg = tk.Button(row, text=" Register", command=self._open_register)
-        style_btn(reg, primary=False)
-        reg.configure(font=F(9, bold=True), fg=PRIMARY)
-        reg.pack(side="left")
 
         self.root.bind("<Return>", lambda _: self._login())
 
@@ -73,6 +65,3 @@ class LoginWindow:
             DashboardWindow(tk.Tk(), user)
         else:
             self.msg.config(text="Invalid username or password.", fg=ERR)
-
-    def _open_register(self):
-        RegisterWindow(tk.Toplevel(self.root))
