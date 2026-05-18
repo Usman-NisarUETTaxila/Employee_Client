@@ -1,5 +1,5 @@
 DB_USER     = "system"
-DB_PASSWORD = "Fapa@1988"
+DB_PASSWORD = "your password"
 DB_DSN      = "localhost:1521/orcl"
 
 BG      = "#f4f4f4"
